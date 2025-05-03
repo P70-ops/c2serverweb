@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Commander - {% block title %}{% endblock %}</title>
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css"
+    rel="stylesheet"
+  />
+  <style>
+    :root {
+      --sidebar-width: 220px;
+      --sidebar-min-width: 60px;
+      --sidebar-bg: linear-gradient(to bottom, #1f1f2e, #1b174d);
+      --sidebar-border: 1px solid rgba(255, 255, 255, 0.05);
+      --content-bg: #f8f9fa;
+      --text-color: #212529;
+      --card-bg: #ffffff;
+      --nav-link-color: #adb5bd;
+      --nav-link-hover: rgba(255, 255, 255, 0.05);
+      --active-indicator: #6c63ff;
+    }
+
+    [data-bs-theme="dark"] {
+      --content-bg: #212529;
+      --text-color: #f8f9fa;
+      --card-bg: #2c3034;
+      --nav-link-color: #adb5bd;
+      --nav-link-hover: rgba(255, 255, 255, 0.05);
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.1);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(0, 0, 0, 0.3);
+    }
+
+    body {
+      background-color: var(--content-bg);
+      color: var(--text-color);
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    /* Modern Sidebar Styling */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 100;
+      padding: 48px 0 0;
+      background: var(--sidebar-bg);
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+      width: var(--sidebar-width);
+      transition: width 0.3s ease, transform 0.3s ease;
+      border-right: var(--sidebar-border);
+      overflow-x: hidden;
+      resize: horizontal;
+      min-width: var(--sidebar-min-width);
+      max-width: 400px;
+    }
+
+    .sidebar-resize-handle {
+      position: absolute;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      cursor: col-resize;
+      z-index: 101;
+    }
+
+    .sidebar-sticky {
+      position: relative;
+      top: 0;
+      height: calc(100vh - 48px);
+      padding-top: 0.5rem;
+      overflow-x: hidden;
+      overflow-y: auto;
+    }
+
+    .nav-link {
+      font-weight: 500;
+      color: var(--nav-link-color);
+      padding: 12px 20px;
+      display: block;
+      transition: background 0.3s, color 0.3s, padding 0.3s;
+      text-decoration: none;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .nav-link:hover {
+      background-color: var(--nav-link-hover);
+      color: #fff;
+    }
+
+    .nav-link.active {
+      background-color: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      font-weight: bold;
+      border-left: 4px solid var(--active-indicator);
+      padding-left: 16px;
+    }
+
+    .main-content {
+      margin-top: 20px;
+      margin-left: var(--sidebar-width);
+      padding: 20px;
+      transition: margin-left 0.3s ease;
+    }
+
+    .card {
+      margin-bottom: 20px;
+      border: none;
+      box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+      background-color: var(--card-bg);
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card:hover {
+      box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
+
+    .stat-card {
+      border-left: 4px solid #0d6efd;
+    }
+
+    .table-responsive {
+      overflow-x: auto;
+    }
+
+    .pagination {
+      justify-content: center;
+    }
+
+    .result-output {
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: monospace;
+      background-color: var(--card-bg);
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    /* Screen size indicator */
+    .screen-size-indicator {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: 5px 10px;
+      border-radius: 5px;
+      font-size: 12px;
+      z-index: 9999;
+    }
+
+    /* Theme toggle button */
+    .theme-toggle {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      z-index: 1000;
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .theme-toggle:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Responsive Sidebar */
+    @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(-100%);
+        width: 260px;
+        z-index: 1000;
+      }
+
+      .sidebar.responsive-show {
+        transform: translateX(0);
+      }
+
+      .main-content {
+        margin-left: 0;
+      }
+
+      .sidebar-toggle {
+        display: block !important;
+      }
+    }
+
+    /* Collapsed sidebar state */
+    .sidebar-collapsed {
+      width: var(--sidebar-min-width);
+    }
+
+    .sidebar-collapsed .nav-link span {
+      display: none;
+    }
+
+    .sidebar-collapsed .nav-link i {
+      margin: 0 auto;
+      display: block;
+      text-align: center;
+    }
+
+    .sidebar-collapsed + .main-content {
+      margin-left: var(--sidebar-min-width);
+    }
+
+    /* Sidebar toggle button */
+    .sidebar-toggle {
+      display: none;
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      z-index: 1000;
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .sidebar-toggle:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Animation for page transitions */
+    .page-transition {
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Tooltip enhancements */
+    .tooltip-inner {
+      max-width: 300px;
+      padding: 8px 12px;
+    }
+
+    /* Badge animations */
+    .badge {
+      transition: transform 0.2s ease;
+    }
+
+    .badge:hover {
+      transform: scale(1.1);
+    }
+  </style>
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+  <nav class="navbar navbar-dark bg-dark fixed-top">
+    <div class="container-fluid">
+      <button class="navbar-toggler d-md-none me-2" type="button" id="mobileSidebarToggle">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <a class="navbar-brand" href="{{ url_for('dashboard') }}">
+        <i class="bi bi-terminal"></i> Commander
+      </a>
+      <div class="d-flex align-items-center">
+        <div class="dropdown me-3">
+          <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button" id="themeDropdown" data-bs-toggle="dropdown">
+            <i class="bi bi-palette"></i>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item theme-option" href="#" data-theme="light"><i class="bi bi-sun me-2"></i> Light</a></li>
+            <li><a class="dropdown-item theme-option" href="#" data-theme="dark"><i class="bi bi-moon me-2"></i> Dark</a></li>
+            <li><a class="dropdown-item theme-option" href="#" data-theme="auto"><i class="bi bi-circle-half me-2"></i> Auto</a></li>
+          </ul>
+        </div>
+        <span class="text-light me-3 d-none d-sm-inline">Welcome, {{ current_user.username }}</span>
+        <a href="{{ url_for('logout') }}" class="btn btn-outline-light btn-sm" title="Logout">
+          <i class="bi bi-box-arrow-right"></i> <span class="d-none d-sm-inline">Logout</span>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container-fluid">
+    <div class="row">
+      <nav class="col-md-3 col-lg-2 d-md-block bg-dark sidebar" id="sidebar">
+        <div class="sidebar-resize-handle"></div>
+        <div class="sidebar-sticky pt-3">
+          <ul class="nav flex-column">
+            <li class="nav-item">
+              <a
+                class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}"
+                href="{{ url_for('dashboard') }}"
+                data-bs-toggle="tooltip"
+                data-bs-placement="right"
+                title="Dashboard"
+              >
+                <i class="bi bi-speedometer2 me-2"></i> <span>Dashboard</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link {% if request.endpoint == 'agents_view' %}active{% endif %}"
+                href="{{ url_for('agents_view') }}"
+                data-bs-toggle="tooltip"
+                data-bs-placement="right"
+                title="Agents"
+              >
+                <i class="bi bi-pc-display me-2"></i> <span>Agents</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link {% if request.endpoint == 'results_view' %}active{% endif %}"
+                href="{{ url_for('results_view') }}"
+                data-bs-toggle="tooltip"
+                data-bs-placement="right"
+                title="Results"
+              >
+                <i class="bi bi-collection me-2"></i> <span>Results</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link {% if request.endpoint == 'files_view' %}active{% endif %}"
+                href="{{ url_for('files_view') }}"
+                data-bs-toggle="tooltip"
+                data-bs-placement="right"
+                title="Files"
+              >
+                <i class="bi bi-files me-2"></i> <span>Files</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link {% if request.endpoint == 'stats_view' %}active{% endif %}"
+                href="{{ url_for('stats_view') }}"
+                data-bs-toggle="tooltip"
+                data-bs-placement="right"
+                title="Statistics"
+              >
+                <i class="bi bi-graph-up me-2"></i> <span>Statistics</span>
+              </a>
+            </li>
+            {% if current_user.is_admin %}
+            <li class="nav-item">
+              <a
+                class="nav-link {% if request.endpoint in ['settings', 'users_view'] %}active{% endif %}"
+                href="{{ url_for('settings') }}"
+                data-bs-toggle="tooltip"
+                data-bs-placement="right"
+                title="Settings"
+              >
+                <i class="bi bi-gear me-2"></i> <span>Settings</span>
+              </a>
+            </li>
+            {% endif %}
+          </ul>
+        </div>
+        <button class="sidebar-toggle" id="sidebarCollapse">
+          <i class="bi bi-list"></i>
+        </button>
+      </nav>
+
+      <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content page-transition" id="mainContent">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div
+          class="alert alert-{{ category }} alert-dismissible fade show mt-3"
+          role="alert"
+        >
+          {{ message }}
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="alert"
+            aria-label="Close"
+          ></button>
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        <div
+          class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom"
+        >
+          <h1 class="h2">{% block header %}{% endblock %}</h1>
+          <div class="btn-toolbar mb-2 mb-md-0">
+            {% block actions %}{% endblock %}
+          </div>
+        </div>
+
+        {% block content %}{% endblock %}
+      </main>
+    </div>
+  </div>
+
+  <div class="screen-size-indicator d-none d-md-block">
+    <span id="screenSizeText">Desktop</span>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Initialize tooltips
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+      return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+
+    // Sidebar functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      const sidebar = document.getElementById('sidebar');
+      const mainContent = document.getElementById('mainContent');
+      const sidebarCollapse = document.getElementById('sidebarCollapse');
+      const mobileSidebarToggle = document.getElementById('mobileSidebarToggle');
+      const resizeHandle = document.querySelector('.sidebar-resize-handle');
+      const themeOptions = document.querySelectorAll('.theme-option');
+      const screenSizeText = document.getElementById('screenSizeText');
+
+      // Check for saved sidebar state
+      const savedSidebarState = localStorage.getItem('sidebarCollapsed');
+      if (savedSidebarState === 'true') {
+        sidebar.classList.add('sidebar-collapsed');
+      }
+
+      // Check for saved theme
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme) {
+        document.documentElement.setAttribute('data-bs-theme', savedTheme);
+      } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.documentElement.setAttribute('data-bs-theme', 'dark');
+      }
+
+      // Check for saved sidebar width
+      const savedSidebarWidth = localStorage.getItem('sidebarWidth');
+      if (savedSidebarWidth && savedSidebarState !== 'true') {
+        sidebar.style.width = savedSidebarWidth;
+        mainContent.style.marginLeft = savedSidebarWidth;
+      }
+
+      // Toggle sidebar collapse
+      sidebarCollapse.addEventListener('click', function() {
+        sidebar.classList.toggle('sidebar-collapsed');
+        localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('sidebar-collapsed'));
+        
+        // Update tooltips
+        if (sidebar.classList.contains('sidebar-collapsed')) {
+          tooltipList.forEach(tooltip => tooltip.enable());
+        } else {
+          tooltipList.forEach(tooltip => tooltip.disable());
+        }
+      });
+
+      // Mobile sidebar toggle
+      mobileSidebarToggle.addEventListener('click', function() {
+        sidebar.classList.toggle('responsive-show');
+      });
+
+      // Theme switcher
+      themeOptions.forEach(option => {
+        option.addEventListener('click', function(e) {
+          e.preventDefault();
+          const theme = this.getAttribute('data-theme');
+          
+          if (theme === 'auto') {
+            localStorage.removeItem('theme');
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+              document.documentElement.setAttribute('data-bs-theme', 'dark');
+            } else {
+              document.documentElement.removeAttribute('data-bs-theme');
+            }
+          } else {
+            document.documentElement.setAttribute('data-bs-theme', theme);
+            localStorage.setItem('theme', theme);
+          }
+        });
+      });
+
+      // Resize sidebar
+      let isResizing = false;
+      let lastDownX = 0;
+
+      resizeHandle.addEventListener('mousedown', function(e) {
+        isResizing = true;
+        lastDownX = e.clientX;
+        document.body.style.cursor = 'col-resize';
+        document.addEventListener('mousemove', handleResize);
+        document.addEventListener('mouseup', stopResize);
+        e.preventDefault();
+      });
+
+      function handleResize(e) {
+        if (!isResizing) return;
+        
+        const offsetRight = document.body.offsetWidth - (e.clientX);
+        const minWidth = parseInt(getComputedStyle(sidebar).getPropertyValue('min-width'));
+        const maxWidth = parseInt(getComputedStyle(sidebar).getPropertyValue('max-width'));
+        
+        let newWidth = document.body.offsetWidth - offsetRight;
+        
+        if (newWidth < minWidth) newWidth = minWidth;
+        if (newWidth > maxWidth) newWidth = maxWidth;
+        
+        sidebar.style.width = newWidth + 'px';
+        mainContent.style.marginLeft = newWidth + 'px';
+        
+        // Remove collapsed state if resizing
+        if (sidebar.classList.contains('sidebar-collapsed')) {
+          sidebar.classList.remove('sidebar-collapsed');
+          localStorage.setItem('sidebarCollapsed', 'false');
+        }
+      }
+
+      function stopResize() {
+        isResizing = false;
+        document.body.style.cursor = '';
+        document.removeEventListener('mousemove', handleResize);
+        document.removeEventListener('mouseup', stopResize);
+        
+        // Save the new width
+        localStorage.setItem('sidebarWidth', sidebar.style.width);
+      }
+
+      // Update screen size indicator
+      function updateScreenSizeIndicator() {
+        const width = window.innerWidth;
+        if (width < 576) {
+          screenSizeText.textContent = 'XS (<576px)';
+        } else if (width < 768) {
+          screenSizeText.textContent = 'SM (576-768px)';
+        } else if (width < 992) {
+          screenSizeText.textContent = 'MD (768-992px)';
+        } else if (width < 1200) {
+          screenSizeText.textContent = 'LG (992-1200px)';
+        } else {
+          screenSizeText.textContent = 'XL (>1200px)';
+        }
+      }
+
+      window.addEventListener('resize', updateScreenSizeIndicator);
+      updateScreenSizeIndicator();
+
+      // Close mobile sidebar when clicking on main content
+      mainContent.addEventListener('click', function() {
+        if (window.innerWidth < 768 && sidebar.classList.contains('responsive-show')) {
+          sidebar.classList.remove('responsive-show');
+        }
+      });
+    });
+  </script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Settings{% endblock %}
+{% block header %}System Settings{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Application Settings</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    <div class="mb-3">
+                        {{ form.max_file_size.label(class="form-label") }}
+                        {{ form.max_file_size(class="form-control") }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.session_timeout.label(class="form-label") }}
+                        {{ form.session_timeout(class="form-control") }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.theme.label(class="form-label") }}
+                        {{ form.theme(class="form-select") }}
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Settings</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>System Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-6 fw-bold">Database:</div>
+                    <div class="col-6">{{ config['DATABASE_NAME'] }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-6 fw-bold">Upload Folder:</div>
+                    <div class="col-6">{{ config['UPLOAD_FOLDER'] }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-6 fw-bold">Download Folder:</div>
+                    <div class="col-6">{{ config['DOWNLOAD_FOLDER'] }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-6 fw-bold">Max File Size:</div>
+                    <div class="col-6">{{ (config['MAX_FILE_SIZE'] / (1024 * 1024))|round(2) }} MB</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-6 fw-bold">Session Timeout:</div>
+                    <div class="col-6">{{ (config['PERMANENT_SESSION_LIFETIME'].total_seconds() / 60)|int }} minutes</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-6 fw-bold">Current Theme:</div>
+                    <div class="col-6">{{ config['BOOTSTRAP_BOOTSWATCH_THEME'] }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

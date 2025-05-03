@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Result #{{ result['id'] }}{% endblock %}
+{% block header %}Result Details{% endblock %}
+
+{% block actions %}
+<div class="btn-group me-2">
+    <a href="{{ url_for('results_view') }}" class="btn btn-sm btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Back
+    </a>
+</div>
+{% if result['is_file'] %}
+<div class="btn-group me-2">
+    <a href="{{ url_for('download_file', file_id=result['file_id']) }}" class="btn btn-sm btn-success">
+        <i class="bi bi-download"></i> Download
+    </a>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Result Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-4 fw-bold">Agent:</div>
+                    <div class="col-8">{{ result['hostname'] }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-4 fw-bold">Command:</div>
+                    <div class="col-8">{{ result['command'] }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-4 fw-bold">Received:</div>
+                    <div class="col-8">{{ result['timestamp'] }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-4 fw-bold">Time Ago:</div>
+                    <div class="col-8">{{ result['time_ago'] }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-4 fw-bold">Type:</div>
+                    <div class="col-8">
+                        {% if result['is_file'] %}
+                        <span class="badge bg-success">File</span>
+                        {% else %}
+                        <span class="badge bg-info">Text</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Output</h5>
+            </div>
+            <div class="card-body">
+                {% if result['is_file'] %}
+                <p>File available for download: {{ result['file_path'] }}</p>
+                {% else %}
+                <div class="result-output">{{ result['output'] }}</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

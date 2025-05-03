@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}Statistics{% endblock %}
+{% block header %}System Statistics{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5>Agent Status</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-6 fw-bold">Active Agents:</div>
+                    <div class="col-6">{{ active_agents }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-6 fw-bold">Inactive Agents:</div>
+                    <div class="col-6">{{ inactive_agents }}</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5>OS Distribution</h5>
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>OS</th>
+                            <th>Count</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for os in os_dist %}
+                        <tr>
+                            <td>{{ os['os'] or 'Unknown' }}</td>
+                            <td>{{ os['count'] }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5>Activity</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-6 fw-bold">Recent Results:</div>
+                    <div class="col-6">{{ recent_results }} (last hour)</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-6 fw-bold">Pending Commands:</div>
+                    <div class="col-6">{{ pending_commands }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-6 fw-bold">Scheduled Tasks:</div>
+                    <div class="col-6">{{ scheduled_tasks }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-6 fw-bold">Uploads (24h):</div>
+                    <div class="col-6">{{ uploads_last_24h }} ({{ upload_volume }})</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-6 fw-bold">Downloads (24h):</div>
+                    <div class="col-6">{{ downloads_last_24h }} ({{ download_volume }})</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5>Top Commands</h5>
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Command</th>
+                            <th>Count</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cmd in command_freq %}
+                        <tr>
+                            <td>{{ format_output(cmd['command']) }}</td>
+                            <td>{{ cmd['count'] }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5>Activity Timeline (7 days)</h5>
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Day</th>
+                            <th>Active</th>
+                            <th>Commands</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for day in timeline %}
+                        <tr>
+                            <td>{{ day['day'] }}<br><small>{{ day['date'] }}</small></td>
+                            <td>{{ day['active_agents'] }}</td>
+                            <td>{{ day['commands'] }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+{% block header %}Dashboard{% endblock %}
+
+{% block extra_css %}
+
+<style>
+    /* Add margin below the page header */
+    .dashboard-content {
+        margin-top: 1.5rem;  /* Adjust this value as needed */
+    }
+    
+    /* Card specific adjustments */
+    .stat-card {
+        transition: transform 0.2s;
+    }
+    .stat-card:hover {
+        transform: translateY(-3px);
+    }
+    
+    /* Table row hover effect */
+    .table-hover tbody tr:hover {
+        background-color: rgba(0, 0, 0, 0.02);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-content">  <!-- Added wrapper div with margin class -->
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <h5 class="card-title">Active Agents</h5>
+                    <h2 class="card-text">{{ active_agents }}</h2>
+                    <a href="{{ url_for('agents_view') }}" class="btn btn-primary btn-sm">View All</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <h5 class="card-title">Recent Results</h5>
+                    <h2 class="card-text">{{ recent_results }}</h2>
+                    <p class="card-text text-muted">Last hour</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <h5 class="card-title">Pending Commands</h5>
+                    <h2 class="card-text">{{ pending_commands }}</h2>
+                    <a href="{{ url_for('send_command_ui') }}" class="btn btn-primary btn-sm">Send Command</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Recent Agents</h5>
+                    <a href="{{ url_for('agents_view') }}" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Hostname</th>
+                                    <th>OS</th>
+                                    <th>Last Seen</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for agent in recent_agents %}
+                                <tr>
+                                    <td><a href="{{ url_for('agent_detail', agent_id=agent['id']) }}">{{ agent['hostname'] or agent['id'][:8] }}</a></td>
+                                    <td>{{ agent['os'] or 'Unknown' }}</td>
+                                    <td>{{ humanize_time(agent['last_seen']) }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Recent Results</h5>
+                    <a href="{{ url_for('results_view') }}" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Agent</th>
+                                    <th>Output</th>
+                                    <th>Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for result in recent_results_data %}
+                                <tr>
+                                    <td>{{ result['hostname'] or result['agent_id'][:8] }}</td>
+                                    <td>{{ format_output(result['output']) }}</td>
+                                    <td>{{ humanize_time(result['timestamp']) }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>  <!-- End of dashboard-content wrapper -->
+{% endblock %}

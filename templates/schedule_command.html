@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Schedule Command{% endblock %}
+{% block header %}Schedule Command{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('schedule_command_ui') }}">
+                    {{ form.hidden_tag() }}
+                    <div class="mb-3">
+                        {{ form.agent_id.label(class="form-label") }}
+                        {{ form.agent_id(class="form-select") }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.command.label(class="form-label") }}
+                        {{ form.command(class="form-control", rows=5) }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.schedule_time.label(class="form-label") }}
+                        {{ form.schedule_time(class="form-control") }}
+                    </div>
+                    <div class="mb-3 form-check">
+                        {{ form.is_recurring(class="form-check-input") }}
+                        {{ form.is_recurring.label(class="form-check-label") }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.interval_seconds.label(class="form-label") }}
+                        {{ form.interval_seconds(class="form-control") }}
+                    </div>
+                    <div class="mb-3 form-check">
+                        {{ form.broadcast(class="form-check-input") }}
+                        {{ form.broadcast.label(class="form-check-label") }}
+                    </div>
+                    <button type="submit" class="btn btn-primary">Schedule</button>
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

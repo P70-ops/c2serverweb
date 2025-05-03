@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}Files{% endblock %}
+{% block header %}File Transfers{% endblock %}
+
+{% block actions %}
+<div class="btn-group me-2">
+    <div class="dropdown">
+        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="filterDropdown" data-bs-toggle="dropdown">
+            <i class="bi bi-funnel"></i> Filter
+        </button>
+        <ul class="dropdown-menu">
+            <li><a class="dropdown-item {% if not selected_agent and not selected_direction %}active{% endif %}" 
+                  href="{{ url_for('files_view') }}">All Files</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><h6 class="dropdown-header">By Agent</h6></li>
+            {% for agent in agents %}
+            <li><a class="dropdown-item {% if selected_agent == agent['id'] %}active{% endif %}" 
+                  href="{{ url_for('files_view', agent_id=agent['id']) }}">
+                {{ agent['hostname'] or agent['id'][:8] }}
+            </a></li>
+            {% endfor %}
+            <li><hr class="dropdown-divider"></li>
+            <li><h6 class="dropdown-header">By Direction</h6></li>
+            <li><a class="dropdown-item {% if selected_direction == 'upload' %}active{% endif %}" 
+                  href="{{ url_for('files_view', direction='upload') }}">Uploads</a></li>
+            <li><a class="dropdown-item {% if selected_direction == 'download' %}active{% endif %}" 
+                  href="{{ url_for('files_view', direction='download') }}">Downloads</a></li>
+        </ul>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Filename</th>
+                        <th>Agent</th>
+                        <th>Size</th>
+                        <th>Direction</th>
+                        <th>Time</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for file in files %}
+                    <tr>
+                        <td>{{ file['filename'] }}</td>
+                        <td>{{ file['hostname'] or file['agent_id'][:8] }}</td>
+                        <td>{{ file['size_human'] }}</td>
+                        <td>
+                            <span class="badge bg-{% if file['direction'] == 'upload' %}primary{% else %}success{% endif %}">
+                                {{ file['direction']|title }}
+                            </span>
+                        </td>
+                        <td>{{ file['time_ago'] }}</td>
+                        <td>
+                            {% if file['direction'] == 'download' %}
+                            <a href="{{ url_for('download_file', file_id=file['id']) }}" class="btn btn-sm btn-success">
+                                <i class="bi bi-download"></i> Download
+                            </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                {% if pagination.page > 1 %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('files_view', page=pagination.page-1, per_page=pagination.per_page, agent_id=selected_agent, direction=selected_direction) }}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+                
+                {% for p in range(1, pagination.pages + 1) %}
+                <li class="page-item {% if p == pagination.page %}active{% endif %}">
+                    <a class="page-link" href="{{ url_for('files_view', page=p, per_page=pagination.per_page, agent_id=selected_agent, direction=selected_direction) }}">{{ p }}</a>
+                </li>
+                {% endfor %}
+                
+                {% if pagination.page < pagination.pages %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('files_view', page=pagination.page+1, per_page=pagination.per_page, agent_id=selected_agent, direction=selected_direction) }}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+</div>
+{% endblock %}

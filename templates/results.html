@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}Results{% endblock %}
+{% block header %}Command Results{% endblock %}
+
+{% block actions %}
+<div class="btn-group me-2">
+    <div class="dropdown">
+        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="filterDropdown" data-bs-toggle="dropdown">
+            <i class="bi bi-funnel"></i> Filter
+        </button>
+        <ul class="dropdown-menu">
+            <li><a class="dropdown-item {% if not selected_agent %}active{% endif %}" href="{{ url_for('results_view') }}">All Agents</a></li>
+            {% for agent in agents %}
+            <li><a class="dropdown-item {% if selected_agent == agent['id'] %}active{% endif %}" 
+                  href="{{ url_for('results_view', agent_id=agent['id']) }}">
+                {{ agent['hostname'] or agent['id'][:8] }}
+            </a></li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Agent</th>
+                        <th>Output</th>
+                        <th>Time</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for result in results %}
+                    <tr>
+                        <td>{{ result['hostname'] or result['agent_id'][:8] }}</td>
+                        <td>{{ result['output'] }}</td>
+                        <td>{{ result['time_ago'] }}</td>
+                        <td>
+                            <a href="{{ url_for('result_detail', result_id=result['id']) }}" class="btn btn-sm btn-primary">
+                                <i class="bi bi-eye"></i> View
+                            </a>
+                            {% if result['is_file'] %}
+                            <a href="{{ url_for('download_file', file_id=result['file_id']) }}" class="btn btn-sm btn-success">
+                                <i class="bi bi-download"></i> Download
+                            </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                {% if pagination.page > 1 %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('results_view', page=pagination.page-1, per_page=pagination.per_page, agent_id=selected_agent) }}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+                
+                {% for p in range(1, pagination.pages + 1) %}
+                <li class="page-item {% if p == pagination.page %}active{% endif %}">
+                    <a class="page-link" href="{{ url_for('results_view', page=p, per_page=pagination.per_page, agent_id=selected_agent) }}">{{ p }}</a>
+                </li>
+                {% endfor %}
+                
+                {% if pagination.page < pagination.pages %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('results_view', page=pagination.page+1, per_page=pagination.per_page, agent_id=selected_agent) }}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+</div>
+{% endblock %}

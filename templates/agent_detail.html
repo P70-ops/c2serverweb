@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+
+{% block title %}Agent {{ agent['id'] }}{% endblock %}
+{% block header %}Agent: {{ agent['hostname'] }}{% endblock %}
+
+{% block actions %}
+<div class="btn-group me-2">
+    <a href="{{ url_for('agents_view') }}" class="btn btn-sm btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Back
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Agent Details</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-4 fw-bold">Agent ID:</div>
+                    <div class="col-8">{{ agent['id'] }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-4 fw-bold">Hostname:</div>
+                    <div class="col-8">{{ agent['hostname'] }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-4 fw-bold">Username:</div>
+                    <div class="col-8">{{ agent['username'] }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-4 fw-bold">OS:</div>
+                    <div class="col-8">{{ agent['os'] }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-4 fw-bold">IP Address:</div>
+                    <div class="col-8">{{ agent['ip'] }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-4 fw-bold">Last Seen:</div>
+                    <div class="col-8">{{ agent['last_seen'] }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-4 fw-bold">Status:</div>
+                    <div class="col-8">
+                        <span class="badge bg-{% if agent['status'] == 'active' %}success{% else %}danger{% endif %}">
+                            {{ agent['status']|title }}
+                        </span>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-4 fw-bold">Reconnects:</div>
+                    <div class="col-8">{{ agent['reconnect_attempts'] }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-4 fw-bold">Last Reconnect:</div>
+                    <div class="col-8">{{ agent['last_reconnect'] }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-4 fw-bold">Created At:</div>
+                    <div class="col-8">{{ agent['created_at'] }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs card-header-tabs" id="agentTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="command-tab" data-bs-toggle="tab" data-bs-target="#command" type="button" role="tab">Send Command</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="schedule-tab" data-bs-toggle="tab" data-bs-target="#schedule" type="button" role="tab">Schedule</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="upload-tab" data-bs-toggle="tab" data-bs-target="#upload" type="button" role="tab">Upload File</button>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body">
+                <div class="tab-content" id="agentTabsContent">
+                    <div class="tab-pane fade show active" id="command" role="tabpanel">
+                        <form method="POST" action="{{ url_for('send_command_ui') }}" enctype="multipart/form-data">
+                            {{ command_form.hidden_tag() }}
+                            <div class="mb-3">
+                                {{ command_form.command(class="form-control", rows=3) }}
+                            </div>
+                            <div class="mb-3 form-check">
+                                {{ command_form.is_file(class="form-check-input") }}
+                                {{ command_form.file(class="form-control") }}
+                                {{ command_form.broadcast(class="form-check-input") }}
+                                <label class="form-check-label">Send to all agents</label>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Send</button>
+                        </form>
+                    </div>
+                    <div class="tab-pane fade" id="schedule" role="tabpanel">
+                        <form method="POST" action="{{ url_for('schedule_command_ui') }}">
+                            {{ schedule_form.hidden_tag() }}
+                            <div class="mb-3">
+                                {{ schedule_form.command(class="form-control", rows=3) }}
+                            </div>
+                            <div class="mb-3">
+                                {{ schedule_form.schedule_time(class="form-control") }}
+                            </div>
+                            <div class="mb-3 form-check">
+                                {{ schedule_form.is_recurring(class="form-check-input") }}
+                                <label class="form-check-label">Recurring</label>
+                            </div>
+                            <div class="mb-3">
+                                {{ schedule_form.interval_seconds(class="form-control", placeholder="Interval in seconds") }}
+                            </div>
+                            <div class="mb-3 form-check">
+                                {{ schedule_form.broadcast(class="form-check-input") }}
+                                <label class="form-check-label">Send to all agents</label>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Schedule</button>
+                        </form>
+                    </div>
+                    <div class="tab-pane fade" id="upload" role="tabpanel">
+                        <form method="POST" action="{{ url_for('send_command_ui') }}" enctype="multipart/form-data">
+                            {{ file_form.hidden_tag() }}
+                            <div class="mb-3">
+                                {{ file_form.file(class="form-control") }}
+                            </div>
+                            <div class="mb-3 form-check">
+                                {{ file_form.broadcast(class="form-check-input") }}
+                                <label class="form-check-label">Send to all agents</label>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Upload</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Recent Commands</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Command</th>
+                                <th>Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for cmd in commands %}
+                            <tr>
+                                <td>{{ format_output(cmd['command']) }}</td>
+                                <td>{{ humanize_time(cmd['timestamp']) }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Recent Results</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Output</th>
+                                <th>Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for result in results %}
+                            <tr>
+                                <td>{{ format_output(result['output']) }}</td>
+                                <td>{{ humanize_time(result['timestamp']) }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,10 @@
+Flask
+Flask-Bootstrap5
+Flask-WTF
+Flask-Login
+Werkzeug
+python-dateutil
+humanize
+pytz
+schedule
+pyOpenSSL
